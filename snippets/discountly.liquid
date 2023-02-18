@@ -1,0 +1,327 @@
+<script src="https://shortly.shop/assets/js/js.cookie.min.js"></script>
+<script>
+console.log('shortly snippet loaded')
+
+var appProxyUrl = "/apps/discountly-proxy";
+
+var getParams   = function (url) {
+    var params      = {};
+    var parser      = document.createElement('a');
+    parser.href     = url;
+    var query       = parser.search.substring(1);
+    var lets        = query.split('&');
+    for (let i = 0; i < lets.length; i++) {
+        let pair = lets[i].split('=');
+        params[pair[0]] = decodeURIComponent(pair[1]);
+    }
+    return params;
+};
+
+// format url parameters
+function formatParams(paramss) {
+  return "?" + Object
+    .keys(paramss)
+    .map(function(key) {
+      return key + "=" + encodeURIComponent(paramss[key])
+    })
+    .join("&")
+}
+// start timer 
+function startTimerShort(duration, displayMints, displayScnd) {
+    // console.log('startTimerShort')
+    let timer = duration, minutes, seconds;
+    setInterval(function () {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        displayMints.textContent = minutes;
+      	displayScnd.textContent  = seconds;
+	
+        Cookies.set("discountly_timem", minutes, { expires: 1 });
+        Cookies.set("discountly_times", seconds, { expires: 1 });
+
+        if (--timer < 0) {
+            if(document.getElementById('shortbar'))
+            {
+                document.getElementById('shortbar').style.display = "none";    
+            }
+            if(document.getElementById('discountly_show-b'))
+            {
+                document.getElementById('discountly_show-b').style.display = "none";    
+            }
+            sessionStorage.removeItem("discount_code");
+            sessionStorage.removeItem("shortly_tid");
+            Cookies.remove("discountly_timem");
+            Cookies.remove("discountly_times");
+            Cookies.remove("discount_code");
+            Cookies.remove("shortly_tid");
+        }
+    },  1000);
+    if(document.getElementById('shortbar'))
+    {
+        document.getElementById('shortbar').style.display = 'block';    
+    }
+}
+// XMLHttpRequest to call shopify proxy
+function proxy(params,callback)
+{
+  var xhttps = new XMLHttpRequest();
+  xhttps.onreadystatechange = function() {
+    if (this.readyState === 4 && this.status === 200) {
+      var response = xhttps.responseText;
+      callback(response)
+    }
+  };
+  var url = appProxyUrl + formatParams(params)
+  xhttps.open("POST", url, true);
+  xhttps.send();
+}
+
+function start()
+{
+    // get current url parameters
+var refs = getParams(window.location.href);
+
+// if parameters contains tid
+if(refs.tid)
+{
+    if(sessionStorage.getItem('shortly_tid') !== refs.tid)
+    {
+        // clear old cookies and sessionStorage if tid is different 
+        sessionStorage.removeItem("discount_code");
+        sessionStorage.removeItem("shortly_tid");
+        Cookies.remove("discountly_timem");
+        Cookies.remove("discountly_times");
+        Cookies.remove("discount_code");
+        Cookies.remove("shortly_tid");    
+    }
+    var tid = refs.tid
+    // get data of url using tid from server
+    init(tid)
+}
+else
+{
+    // if parameters does not have tid check in sessionStorage
+    if ("shortly_tid" in sessionStorage) {
+        var tid = sessionStorage.getItem('shortly_tid')
+        if(tid !== refs.tid)
+        {
+            // console.log('not same id')
+            if ("shortly_html" in sessionStorage) {
+                var shortdata = sessionStorage.getItem('shortly_html')
+                shortdata = JSON.parse(shortdata)
+                let bar = shortdata.bar
+                let discount = shortdata.discount
+                let discount_code = shortdata.discount_code
+                
+                // document.body.innerHTML = bar+document.body.innerHTML
+                
+                var body = document.getElementsByTagName('body')[0];
+                var div = document.createElement('div');
+                div.innerHTML = bar;
+                body.insertBefore(div, body.firstChild)
+                
+                Cookies.set('shortly_tid', `${tid}`, {
+                    expires: 1, path: '/'
+                });
+                
+                sessionStorage.setItem("shortly_tid", tid);
+                
+                if(document.querySelector('#shorttime').value > 0)
+                {
+                    timer()    
+                }
+                else
+                {
+                    document.querySelector('#shortTimer').style.display = "none"
+                    
+                    if(!refs.tid)
+                    {
+                        document.querySelector('#shortbar').style.display = "none"
+                    }
+                    if(document.querySelector('#shorttimestatus').value == 1 && document.querySelector('#shorttime').value == 0)
+                    {
+                        document.querySelector('#shortbar').style.display = "block"
+                    }
+                }
+                if(discount_code)
+                {
+                    applydiscount(discount_code)
+                }
+                
+                if(document.getElementById('closeit_bottom'))
+                {
+                     document.getElementById('closeit_bottom').addEventListener('click', function() {
+                        document.getElementById('discountly_show-b').style.display = 'none';
+                    });    
+                }
+                if(document.querySelector('#closeit_top'))
+                {
+                    // console.log('first close')
+                    document.getElementById('closeit_top').addEventListener('click', function() {
+                        document.querySelector('#shortbar').style.display = 'none';
+                    });    
+                }
+                
+            }
+        }
+        else
+        {
+            init(tid)    
+        }
+    }
+}
+}
+
+// get url data from short code
+function init(shortId){
+    // console.log('tid found')
+    let shortly_params = {
+        query:'bar',
+        tid:shortId
+    }
+    proxy(shortly_params , function(shortdata){
+        sessionStorage.setItem('shortly_html',shortdata)
+        shortdata = JSON.parse(shortdata)
+        let bar = shortdata.bar
+        let discount = shortdata.discount
+        let discount_code = shortdata.discount_code
+        if(bar)
+        {
+            // document.body.innerHTML = bar+document.body.innerHTML
+            var body = document.getElementsByTagName('body')[0];
+            var div = document.createElement('div');
+            div.innerHTML = bar;
+            body.insertBefore(div, body.firstChild);
+        }
+        Cookies.set('shortly_tid', `${shortId}`, {
+            expires: 1, path: '/'
+        });
+        sessionStorage.setItem("shortly_tid", shortId);
+        if(document.querySelector('#shorttime'))
+        {
+            if(document.querySelector('#shorttime').value > 0)
+            {
+                timer()    
+            }
+            else
+            {
+                document.querySelector('#shortTimer').style.display = "none"
+            }
+        }
+        else
+        {
+            if(document.querySelector('#shortTimer'))
+            {
+                document.querySelector('#shortTimer').style.display = "none"    
+            }
+            if(!refs.tid)
+            {
+                document.querySelector('#shortbar').style.display = "none"
+            }
+            if(document.querySelector('#shorttimestatus').value == 1 && document.querySelector('#shorttime').value == 0)
+            {
+                document.querySelector('#shortbar').style.display = "block"
+            }
+        }
+        if(discount_code)
+        {
+            // console.log("apply discount")
+            applydiscount(discount_code)
+        }
+        
+        //On click on hide btn
+        if(document.getElementById('closeit_bottom'))
+        {
+             document.getElementById('closeit_bottom').addEventListener('click', function() {
+                document.getElementById('discountly_show-b').style.display = 'None';
+            });    
+        }
+        if(document.querySelector('#closeit_top'))
+        {
+            // console.log('2nd close')
+            document.getElementById('closeit_top').addEventListener('click', function() {
+                document.querySelector('#shortbar').style.display = 'None';
+            });    
+        }
+    });
+}
+
+// if url have discount apply
+function applydiscount(code){
+    if(document.querySelector('#cc-code'))
+    {
+        // console.log("found the code")
+        document.querySelector('#cc-code').textContent = code
+    }
+    var url = window.location.origin;
+    var xhttpsss = new XMLHttpRequest();
+    xhttpsss.onreadystatechange = function() {
+    if (this.readyState === 4 && this.status === 200) {
+      var response = xhttpsss.responseText;
+     }
+    };
+   var urlss = url + "/discount/" + code
+   xhttpsss.open("GET", urlss, true);
+   xhttpsss.send();
+    
+    Cookies.set('discount_code', `${code}`, {
+      path: '/'
+    });
+    if(document.querySelector('.input_field1'))
+    {
+        let newtextcontent = document.querySelector('.input_field1').textContent.replace(/ *\[[^)]*\] */g, ` ${code} `);
+        document.querySelector('.input_field1').textContent = newtextcontent   
+    }
+}
+
+//On onmous eover show text in tooltip
+function discountly_tooltiptext_set(x) {
+ document.getElementById('discountly_tooltiptext_id').innerHTML = 'Copy coupon';
+}
+
+//On clcik copy text
+function copyText(text) {
+  var input = document.createElement('input');
+    input.setAttribute('value', text);
+    document.body.appendChild(input);
+    input.select();
+    var result = document.execCommand('copy');
+    document.body.removeChild(input);
+  	document.getElementById('discountly_tooltiptext_id').innerHTML = 'Copied';
+}
+
+// count down timer calculatuions
+function timer(){
+    // console.log('timer called')
+    if ("shortly_tid" in sessionStorage) {
+        let check   = document.cookie.indexOf('discountly_timem');
+
+        let displayMints    = document.querySelector('#discountly_timem');
+        let displayScnd     = document.querySelector('#discountly_times');
+        
+        if (Cookies.get('discountly_timem') == 'NaN' || Cookies.get('discountly_timem') == undefined || Cookies.get('discountly_times') == 'NaN' || Cookies.get('discountly_times') == undefined) {
+            let getMints = document.querySelector('#shorttime').value;
+            let tenMinutes      = 60 * parseInt(getMints);
+            startTimerShort(tenMinutes, displayMints, displayScnd);
+        } else {
+            let minutes         = Cookies.get('discountly_timem');
+            let seconds         = Cookies.get('discountly_times');
+            
+            minutes = minutes < 10 ? "" + minutes : minutes;
+            seconds = seconds < 10 ? "" + seconds : seconds;
+        
+            document.querySelector('#discountly_timem').textContent = minutes
+            document.querySelector('#discountly_times').textContent = seconds
+            
+            let tenMinutes      = parseInt(minutes * 60) + parseInt(seconds);
+            startTimerShort(tenMinutes, displayMints, displayScnd);
+        }
+    }
+}
+
+start();
+</script>

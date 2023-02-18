@@ -1,0 +1,170 @@
+{{ 'custom-announcement-bar.css' | asset_url | stylesheet_tag }}
+<script>
+
+function scrollToOrder(){
+    document.getElementsByClassName('custom-announcement-bar')[0].scrollIntoView({behavior: 'smooth'});
+}
+
+window.addEventListener('scroll', function(){
+    let orderBot = document.getElementById('order').getBoundingClientRect().bottom;
+    let bar = document.getElementsByClassName('sticky-bar')[0];
+    if(orderBot < 0){
+        bar.style.opacity = Math.abs(orderBot) <= 1000 ? Math.abs(orderBot/1000) : 1
+        bar.style.zIndex = 9;
+    } else {
+        bar.style.opacity = 0;
+        bar.style.zIndex = -1;
+    }
+})
+
+var countDownDate = new Date().getTime() + {{ section.settings.timer | times: 60000}};
+
+var x = setInterval(function() {
+
+  var now = new Date().getTime();
+    
+  var distance = countDownDate - now;
+    
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  var secondsWithZero = seconds < 10 ? '0'+seconds : seconds;
+  document.getElementById("timer").innerHTML = minutes + ":" + secondsWithZero;
+    
+  if (distance < 0) {
+    clearInterval(x);
+    document.getElementById("timer").innerHTML = `{{ 'general.custom.expired' | t }}`;
+  }
+}, 1000);
+</script>
+{% style %}
+    .sticky-bar{
+        position: -webkit-sticky; /* Safari */
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 9;
+        opacity: 0;
+    }
+    .text-red{
+        color: #EB0A4D;
+    }
+    .text-red-00{color:#DA0000}
+    .bg-red--01 {
+      background-color:#DA0000;
+      cursor:pointer;
+		transition:background-color 0.2s;
+    }
+    .bg-red--01:hover {
+      background-color:#FF5353;
+    }
+	
+    .bg-purple{
+        background-color: #5E1AEE;
+    }
+    .sticky-button{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 45px;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        color: #fff;
+        border: 0;
+        font-weight: inherit;
+        font-size: inherit;
+        margin-left: 1.5rem;  
+    }
+    .text-black{
+        color: #000;
+    }
+    .pipe-separator{
+        min-height: 42px;
+        width: 2px;
+        background-color: #000;
+        margin: 0 1.5rem;
+    }
+    .sticky-announcement-container{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 0;
+        font-size: 22px;
+        line-height: 22px;
+        font-weight: bold;
+        text-transform: uppercase;
+        align-items: center;
+    }
+    .sticky-announcement-container p {
+        margin: 0;
+    }
+    .sticky-announcement-text{
+        display: flex;
+        align-items: center;
+    }
+    @media screen and (max-width: 760px){
+        .pipe-separator{
+            display: none;
+        }
+        .sticky-announcement-container{
+            font-size: 1.6rem;
+            line-height: 18px;
+        }
+        .sticky-announcement-text{
+            flex-direction: column;
+        }
+        .sticky-button {
+          margin-left:0;
+          margin-top:10px;
+        }
+    }
+{% endstyle %}
+<div class="custom-announcement-bar sticky-announcement-bar" style="background-color: {{section.settings.background}};">
+    <div class="sticky-announcement-container"> 
+        <div class="sticky-announcement-text">
+            <div class="text-black">{{ section.settings.black-text }}</div>
+            <span class="pipe-separator"></span>
+            <div class="text-red-00">{{ section.settings.red-text }}</div>
+        </div>
+        <button onclick="scrollToOrder()" class="sticky-button bg-red--01" href="#">{{section.settings.button-text}} -&nbsp;<span id="timer"></span> </button>
+    </div>
+</div>
+
+{% schema %}
+{
+  "name": "Sticky Announcement bar",
+  "class": "sticky-bar",
+  "settings":[
+    {
+        "type": "richtext",
+        "id": "black-text",
+        "label": "Black text"
+    },
+    {
+        "type": "richtext",
+        "id": "red-text",
+        "label": "Red text"
+    },
+    {
+        "type": "color_background",
+        "id": "background",
+        "label": "t:sections.custom-announcement-bar.settings.background.label",
+        "default": "#fff"
+    },
+    {
+        "type": "text",
+        "id": "button-text",
+        "label": "Button text"
+    },
+    {
+        "type": "number",
+        "id": "timer",
+        "label": "Countdown timer"
+    }
+  ],
+  "presets": [{
+    "name": "Sticky Announcement bar",
+    "category": "Text"
+  }] 
+}
+{% endschema %}

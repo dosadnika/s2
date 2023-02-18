@@ -1,0 +1,6 @@
+{% capture seolegend_include_manual_seo_log_ids_custom %}{% include "Secomapp-manual-seo-log-ids-custom" %}{% endcapture %}{% unless seolegend_include_manual_seo_log_ids_custom contains "Liquid error" %}{% include "Secomapp-manual-seo-log-ids-custom" %}{% endunless %}
+{%- if template contains "404" -%}
+{%- elsif template contains "index" -%}
+    {% capture seolegend_index %}{{ page_title }} | {{ shop.name }}{% endcapture %}
+    <title>{{ seolegend_index | strip_html | strip | strip_newlines | replace: '"', "'" }}</title>
+{%- endif -%}

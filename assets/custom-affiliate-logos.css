@@ -1,0 +1,37 @@
+.custom-affiliate-logos{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 2rem 1rem;
+}
+.affiliate-title{
+    font-size: 18px;
+    line-height: 22px;
+    color: #000;
+    text-transform: uppercase;
+    margin: 0;
+}
+.affiliate-title p{
+    margin: 0;
+}
+.affiliate-logo{
+    display: flex;
+    justify-content: center;
+    max-height: 80px;
+    height: 100%;
+}
+.affiliate-image{
+    height: 100%;
+}
+@media screen and (max-width: 600px) {
+    .affiliate-logo{
+        align-items: center;
+    }
+    .affiliate-image{
+        width: 90%;
+        margin: 0 auto;
+        height: auto;
+    }
+}

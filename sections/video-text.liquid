@@ -1,0 +1,99 @@
+
+{{ 'video-icons.css' | asset_url | stylesheet_tag }}
+{%- style -%}
+.video-text{
+    width: 100%;
+}
+#howToUse{
+    margin: 2rem auto;
+}
+.fw-image{
+    display: none;
+    margin-top: 30px;
+    width: 100%;
+}
+.fw-image-mobile{
+    display: block;
+}
+@media screen and (min-width: 560px) {
+    .fw-image{
+        margin-top: 80px;
+        display: block;
+    }
+    .fw-image-mobile{
+        display: none;
+    }
+    #howToUse{
+        margin: 3rem auto 6rem;
+    }
+    .video-text{
+        width: calc(50% - 10px);
+    }
+}
+{%- endstyle -%}
+
+<div class="page-width" id="howToUse">
+    <div class="video-icons">
+       {% if section.settings.heading != blank%} <h2 class="custom-title">{{section.settings.heading}}</h2> {% endif %}
+        {% if section.settings.description %}
+            <div class="video-icons-container">
+                {%- if section.settings.video_url != blank -%} 
+                    <video class="normal-video" controls {% if section.settings.cover_image %} poster="{{section.settings.cover_image | img_url: 'master'}}"{% endif %}>
+                        <source src="{{ section.settings.video_url }}">
+                        Your browser does not support HTML video.
+                    </video>
+                {%- endif -%}
+                <div class="video-text">
+                    {{section.settings.description}}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    {% if section.settings.fw_image %}
+        <img class="fw-image" src="{{ section.settings.fw_image | img_url: 'master'}}" alt="{{section.settings.heading}}" />
+    {% endif %}
+    {% if section.settings.fw_image_mobile %}
+        <img class="fw-image-mobile" src="{{ section.settings.fw_image_mobile | img_url: 'master'}}" alt="{{section.settings.heading}}" />
+    {% endif %}
+</div>
+{% schema %}
+{
+  "name": "Video and Text",
+  "settings":[
+    {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading"
+    },
+    {
+        "type": "richtext",
+        "id": "description",
+        "label": "Description"
+    },
+    {
+      "type": "image_picker",
+      "id": "cover_image",
+      "label": "Video banner"
+    },
+    {
+        "type": "url",
+        "id": "video_url",
+        "label": "Video url"
+    },
+    {
+      "type": "image_picker",
+      "id": "fw_image",
+      "label": "Full width image"
+    },
+    {
+      "type": "image_picker",
+      "id": "fw_image_mobile",
+      "label": "Full width image mobile"
+    }
+  ],
+  "presets": [{
+    "name": "Video and Text",
+    "category": "Text"
+  }] 
+}
+{% endschema %}

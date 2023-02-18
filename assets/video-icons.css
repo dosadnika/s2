@@ -1,0 +1,111 @@
+.video-icons{
+    max-width: 1200px;
+    margin: 0 auto;
+    color: #3d3d3d;
+    display: flex;
+    flex-direction: column;
+}
+.video-description{
+    font-size: 1.8rem;
+    line-height: 26px;
+    text-align: left;
+}
+.video-icons-container{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column-reverse;
+    align-items: center;
+}
+.video-icons-container .normal-video{
+    width: calc(100% + 30px);
+}
+.normal-video,.icons-container{
+    width: 100%;
+}
+.icons-container{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.icon-text{
+    display: flex;
+    align-items: center;
+    width: 47.5%;
+    font-size: 1.1rem;
+    line-height: 13px;
+    font-weight: 900;
+    letter-spacing: 0;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+}
+.icon-with-bg{
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    margin-right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-with-bg img{
+    width: 100%;
+}
+.normal-video{
+    margin: 30px 0;
+}
+.normal-video-red {
+ 	border:12px solid #DA0000;
+	border-bottom-width:0;
+    background-color:#DA0000;
+    color:#fff;
+  border-radius:7px;
+}
+
+@media screen and (max-width:768px)
+{
+	.normal-video-red {
+      border-radius:0;
+    }
+  
+  
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@900&display=swap');
+
+
+.watch-now {
+  font-size:30px;
+  text-align:center;
+  font-weight:900;
+  padding:0.3em;
+  font-family: 'Roboto', sans-serif;
+  text-transform:uppercase;
+}
+
+
+
+@media screen and (min-width: 780px) {
+    .video-description{
+        text-align: center;
+    }
+    .video-icons-container .normal-video,.icons-container{
+        width: calc(50% - 25px);
+    }
+    .icon-text{
+        font-size: 1.6rem;
+        line-height: 16px;
+    }
+    .icon-with-bg{
+        width: 95px;
+        height: 95px;
+        min-width: 95px;
+        min-height: 95px;
+    }
+    .video-icons-container{
+        flex-direction: row;
+    }
+    .normal-video{
+        margin: 0;
+    }
+}

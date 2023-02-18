@@ -1,0 +1,139 @@
+{{ 'custom-affiliate-logos.css' | asset_url | stylesheet_tag }}
+
+{{ 'swiper-bundle.min.css' | asset_url | stylesheet_tag }}
+{{ 'swiper-bundle.min.js' | asset_url | script_tag }}
+
+<script>
+['DOMContentLoaded','resize'].forEach( evt => {
+    document.addEventListener(evt, function(){
+
+        const swiper = new Swiper('.swiper', {
+        slidesPerView: 5,
+        centeredSlides: true,
+        roundLengths: true,
+        loop: true,
+    // Responsive breakpoints
+        breakpoints: {
+            // when window width is >= 320px
+            320: {
+            slidesPerView: 3,
+            },
+            // when window width is >= 480px
+            480: {
+            slidesPerView: 4
+            },
+            // when window width is >= 640px
+            640: {
+            slidesPerView: 5
+            }
+        },
+
+        // Navigation arrows
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        });
+    })
+})
+</script>
+
+{% style %}
+.swiper {
+    width: 100%;
+    height: 80px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+.swiper-container{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+}
+.swiper-button-prev{
+    width: 20px;
+    left: 0;
+    color: #000;
+}
+.swiper-button-next{
+    width: 20px;
+    right: 0;
+    color: #000;
+}
+.swiper-button-next,.swiper-button-prev{
+    display: flex;
+}
+.swiper-button-prev svg{
+    transform: rotate(90deg);
+}
+.swiper-button-next svg{
+    transform: rotate(-90deg);
+}
+.logos-container{
+    display: none;
+    height: 54px;
+}
+@media all and (max-width: 800px){
+    .swiper-container{
+        padding: 0 30px;
+    }
+}
+{% endstyle %}
+
+<div class="custom-affiliate-logos" style="background-color: {{section.settings.background}};">
+    <h2 class="affiliate-title">{{section.settings.heading}}</h2>
+    <div class="swiper-container page-width">
+        <div class="swiper-button-prev">{% render 'icon-caret' %}</div>
+        <div class="swiper">
+            <div class="swiper-wrapper">
+                <!-- Slides -->
+                {% for block in section.blocks %}
+                    {% case block.type %}
+                        {% when 'logo' %}
+                        <div class="swiper-slide">
+                            <div class="affiliate-logo">
+                                <img class="affiliate-image" src="{{ block.settings.logo | img_url: 'master'}}" alt="Brand logos"/>
+                            </div>
+                        </div>
+                    {% endcase %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="swiper-button-next">{% render 'icon-caret' %}</div>
+    </div>
+</div>
+
+{% schema %}
+{
+    "name": "Affiliate Logos",
+    "settings":[
+        {
+            "type": "richtext",
+            "id": "heading",
+            "label": "Heading"
+        },
+        {
+            "type": "color",
+            "id": "background",
+            "label": "Background",
+            "default": "#e7e7e7"
+        }
+    ],
+    "blocks": [{
+        "name": "Logo",
+        "type": "logo",
+        "settings": [
+            {
+                "type": "image_picker",
+                "id": "logo",
+                "label": "Logo"
+            }]
+        }
+    ],
+    "presets": [{
+        "name": "Affiliate Logos",
+        "category": "Image"
+    }] 
+}
+{% endschema %}

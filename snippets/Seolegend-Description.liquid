@@ -1,0 +1,10 @@
+{% capture seolegend_include_manual_seo_log_ids_custom %}{% include "Secomapp-manual-seo-log-ids-custom" %}{% endcapture %}{% unless seolegend_include_manual_seo_log_ids_custom contains "Liquid error" %}{% include "Secomapp-manual-seo-log-ids-custom" %}{% endunless %}
+{%- if template contains "404" -%}
+{%- elsif template contains "index" -%}
+    {% capture secomapp_index_s %}{{ page_description }} | {{ shop.name }}{% endcapture %}
+    {% assign metaDescription = page_description %}
+    {%- if page_description -%}
+        {% capture page_description %}{{ metaDescription }}{% endcapture %}
+    {%- endif -%}
+    <meta name="description" content="{{secomapp_index_s | truncate: 200 | strip_html | strip | strip_newlines | replace: '"', "'"}}">
+{%- endif -%}

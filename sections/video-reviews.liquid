@@ -1,0 +1,125 @@
+{{ 'video-icons.css' | asset_url | stylesheet_tag }}
+{{ 'video-text.css' | asset_url | stylesheet_tag }}
+
+<div class="page-width" id="reviews">
+    <div class="video-icons">
+       {% if section.settings.heading != blank%} <h2 class="custom-title custom-title__vidtext">{{section.settings.heading}}</h2> {% endif %}
+        {% if section.settings.description %}
+            <div class="video-icons-container">
+                <div class="video-title">
+                    {{section.settings.description}}
+                </div>
+            </div>
+        {% endif %}
+        <div class="review-cards">
+        {% for block in section.blocks %}
+            <div class="review-card">
+            {%- if block.settings.video_url != blank -%} 
+                    <video preload="none" class="normal-video normal-video__vidtext" controls {% if block.settings.cover_image %} poster="{{block.settings.cover_image | image_url: width: 474, crop: 'center', height: 474}}"{% endif %}>
+                        <source src="{{ block.settings.video_url }}">
+                        Your browser does not support HTML video.
+                    </video>
+            {%- endif -%}
+                <h3 class="rating-title">{{block.settings.title}}</h3>
+                <div class="ratings-card__footer">
+                    <div class="custom-product-ratings">
+                        <div class="stars">
+                            {% for i in (1..block.settings.rating-count) %}
+                                <img width="18" heigh="18" src="{{block.settings.rating-icon | img_url: '42x42'}}" alt="star icon"/>
+                            {% endfor %}
+                        </div>
+                        <div class="ratings-text ratings-text__vidtext">{{ block.settings.rating-text }}</div>
+                    </div>
+                    <div class="review-author-title text-purple"> <img class="author-pre" width="18" heigh="18" src="{{block.settings.author-pre | img_url: '20x20'}}" alt="{{block.settings.author}}" /> <b>{{ block.settings.author }}</b></div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+<script>
+    function equalizeHeights(){
+        let titlesArray = [...document.getElementsByClassName('rating-title')];
+        let maxHeight = 0;
+        titlesArray.map(el => el.offsetHeight > maxHeight ? maxHeight = el.offsetHeight : maxHeight)
+        titlesArray.map(el => el.style.height = `${maxHeight}px`)
+    }
+    if (window.innerWidth >= 760){
+        window.addEventListener('DOMContentLoaded', function(){
+            equalizeHeights();
+        })
+    }
+    window.addEventListener('resize', function(){
+        if (window.innerWidth >= 760){
+            equalizeHeights();
+        } else {
+            [...document.getElementsByClassName('rating-title')].map(el => el.style.height = 'auto')
+        }
+    })
+</script>
+{% schema %}
+{
+  "name": "Video reviews",
+  "settings":[
+    {
+        "type": "richtext",
+        "id": "heading",
+        "label": "Heading"
+    }
+  ],
+  "blocks": [{
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+        "type": "image_picker",
+        "id": "cover_image",
+        "label": "Video banner"
+        },
+        {
+            "type": "url",
+            "id": "video_url",
+            "label": "Video url"
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+        },
+        {
+            "type": "text",
+            "id": "author",
+            "label": "Author"
+        },
+        {
+        "type": "image_picker",
+        "id": "author-pre",
+        "label": "Author icon"
+        },
+        {
+            "type": "image_picker",
+            "id": "rating-icon",
+            "label": "Pick rating image"
+        },
+        {
+            "type": "range",
+            "id": "rating-count",
+            "min": 1,
+            "max": 5,
+            "step": 1,
+            "label": "Rating 1-5",
+            "default": 5
+        },
+        {
+            "type": "text",
+            "id": "rating-text",
+            "label": "Enter rating text"
+        }
+      ]
+    }],
+  "presets": [{
+    "name": "Video reviews",
+    "category": "Video"
+  }] 
+}
+{% endschema %}
